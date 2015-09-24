@@ -295,9 +295,9 @@ class Grafo
       }//--------------------------------------------------------------------
 
 
-      //--------------------------------------------------------------------
-      // iniciaVisitados: Inicia o vetor de visitados como false
-      //--------------------------------------------------------------------
+      /**
+       * Inicia vetor de visitados como false/naovisitado
+       */
       void iniciaVisitados()
       {
          for (int i = 0; i < numVertice; ++i)
@@ -307,10 +307,10 @@ class Grafo
       }//--------------------------------------------------------------------
 
 
-      //--------------------------------------------------------------------
-      // pesquisaProfunda: Busca todos os vertices do grafo usando busca
-      // em profundidade
-      //--------------------------------------------------------------------
+      /**
+       * pesquisaProfundidade: Algoritmo de caminhamento em Grafo utilizando o metodo
+       * de Busca em Profundidade.
+       */
       void pesquisaProfundidade()
       {
       		for (int i = 0; i < numVertice; ++i)
@@ -339,11 +339,10 @@ class Grafo
 
 
       
-      //--------------------------------------------------------------------
-      // pesquisaProfunda: Busca todos os vertices do grafo usando metodos
-      // da profundidade
-      //--------------------------------------------------------------------
-
+      /**
+       * pesquisaLargura: Algoritmo de caminhamento em Grafo utilizando o metodo
+       * de Busca em Largura.
+       */
       void pesquisaLargura()
       {
 
@@ -412,12 +411,10 @@ class Grafo
         }
       }
 
-
-      //--------------------------------------------------------------------
-      // isConexo: Metodo que retorna true se houver pelo menos um caminho 
-      // entre todos os vertices do Grafo.
-      //--------------------------------------------------------------------
-
+      /**
+       * isConexo: Metodo que retorna verdadeiro se houver ao menos um caminho
+       * entre todos os vertices do grafo.
+       */
       bool isConexo()
       {
          bool resp = false;
@@ -458,11 +455,10 @@ class Grafo
       }
       //--------------------------------------------------------------------
 
-
-      //--------------------------------------------------------------------
-      // isUnicursal: Metodo que verifica se um grafo e Unicursal. Ou seja,
-      // se existe ao menos 2 vertices com grau impar.
-      //--------------------------------------------------------------------
+      /**
+       * isUnicursal: Metodo que verifica se existe ao menos 2 vertices com grau
+       * impar em um grafo conexo.
+       */
       bool isUnicursal()
       {
          bool resp = false;
@@ -559,10 +555,10 @@ class Grafo
          }//--------------------------------------------------------------------
 
 
-         //--------------------------------------------------------------------
-         // isRegular: Metodo que diz se todos os vertices de um grafo possuem
-         // os mesmo grau.
-         //--------------------------------------------------------------------
+         /**
+          * isRegular: Metodo que diz se todos os vertices de um grafo possuem
+          * os mesmo grau.
+          */
 
          bool isRegular()
          {
@@ -586,10 +582,10 @@ class Grafo
          }//--------------------------------------------------------------------
 
 
-         //--------------------------------------------------------------------
-         // isCompleto: Metodo que diz se todos os vertices sao adjacentes
-         //--------------------------------------------------------------------
-
+         /**
+          * isCompleto: Metodo que diz se todos os vertices sao adjacentes, ou seja,
+          * todos os vertices estao conectados ao menos por uma aresta
+          */
          bool isCompleto()
          {
             bool resp = false;
@@ -609,6 +605,43 @@ class Grafo
             }
             return resp;
          }//-------------------  -------------------------------------------------
+
+         void inicializacoes(Vertice v, int* [][] caminhos, int* distancia[])
+         {
+
+          iniciaVisitados();         
+          
+           for(int i = 0; i<numVertice; ++i)
+           {
+              if(v == i)
+              {
+                 distancia[i] = 0;
+              }
+              if(isAresta(v,i))
+              {
+                 distancia[i] = getPeso(v,i);
+                 caminhos[v][i]  = 1;
+              }
+              else if(!isAresta(v,i))
+              {
+                 distancia[i] = INT_MAX;                
+              }
+           }
+            
+            
+       }
+         
+         /**
+          * Dijkstra
+          */ 
+          
+          void dijkStra(Vertice v)
+          {
+          int* distancia = new int[MAX_VERTICE];
+          int* caminhos  = new int[MAX_VERTICE][MAX_VERTICE];
+          inicializacoes(v, &caminhos, &distancia);
+          
+        }
 
          //--------------------------------------------------------------------
          void test(bool a)
