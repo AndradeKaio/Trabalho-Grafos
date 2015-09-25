@@ -439,7 +439,7 @@ class Grafo
       bool isEuleriano()
       {
          bool resp = false;
-         if(isConexo())
+         if(isConexo() && !isNulo())
          {
             resp = true;
             for (int i = 1; i < numVertice; ++i)
@@ -631,7 +631,7 @@ class Grafo
          
          /**
           * Algoritmo de Dijkstra
-          */ 
+          
           
           void dijkstra(Vertice v)
           {
@@ -654,12 +654,13 @@ class Grafo
                       if(isAresta(i,j) && visitados[j] == false && (distancia[j] + getAresta(i,j) < distancia[i]))
                       {
                         distancia[j] = distancia[i] + getAresta(i,j);
+                        caminho[i][j] =
                       }
                   }
               }
             }
           
-        }
+        }*/
 
          /**
           * Simulacoes de testes
@@ -681,7 +682,7 @@ class Grafo
 void testes(Grafo* g)
 {
       g->imprimirVerticeAresta();
-      cout <<"S   R   N   C   E   U" << endl;
+      //cout <<"S   R   N   C   E   U" << endl;
       g->test(g->isSimples());  
       g->test(g->isRegular());  
       g->test(g->isNulo());     
