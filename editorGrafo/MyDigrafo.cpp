@@ -1,4 +1,4 @@
-z/***********************************************************************
+/***********************************************************************
 * Pontificia Universidade Catolica de Minas Gerais 
 * Ciencia da Computacao 
 * Algoritmos em Grafos
@@ -21,11 +21,11 @@ using namespace std;
 // DEFINICAO DE CONSTANTES
 //=====================================================================
 #define MAX_VERTICE		 		500
-#define MAX_INT         		0x7FFFFFFF
-#define NULO						-1
+#define MAX_INT         	0x7FFFFFFF
+#define NULO						  -1
 #define BRANCO						0
-#define PRETO						1
-
+#define PRETO						  1
+#define INIFITY           0x7FFFFFFF 
 //=====================================================================
 // DEFINICAO DE TIPOS
 //=====================================================================
@@ -57,6 +57,7 @@ class Grafo
       int  fila[MAX_VERTICE];
 
       Peso matriz[MAX_VERTICE][MAX_VERTICE];
+      int caminho;
       
 
           
@@ -69,6 +70,7 @@ class Grafo
          numVertice     = 0;
          numAresta      = 0;
          componentes    = 0;
+         caminho        = 0;
          excluirTodasArestas();
       }//-------------------------------------------------------------------
 
@@ -99,13 +101,12 @@ class Grafo
          for(int i = 0; i < numVertice; i++)
          {
             inserirAresta(i, i, NULO);
-            for(int j = i+1; j < numVertice; j++)
+            for(int j = 0; j < numVertice; j++)
             {	
                cin >> temp;
                //cout << "Peso inserido " << temp << "\n";
                //cout << "Numero aresta "<< " " << numAresta << "\n";
-               inserirAresta(i, j, temp);
-               inserirAresta(j, i, temp);
+               inserirAresta(i, j, temp);            
             }
          }
          return resp;
@@ -190,7 +191,7 @@ class Grafo
          if(matriz[v1][v2] == NULO)
          {
             matriz[v1][v2] = peso;
-            if(peso != NULO && isAresta(v2,v1) == false)
+            if(peso != NULO)
                numAresta++;
          }      
       }//-------------------------------------------------------------------
@@ -295,9 +296,9 @@ class Grafo
       }//--------------------------------------------------------------------
 
 
-      //--------------------------------------------------------------------
-      // iniciaVisitados: Inicia o vetor de visitados como false
-      //--------------------------------------------------------------------
+      /**
+       * Inicia vetor de visitados como false/naovisitado
+       */
       void iniciaVisitados()
       {
          for (int i = 0; i < numVertice; ++i)
@@ -306,18 +307,19 @@ class Grafo
          }
       }//--------------------------------------------------------------------
 
-
-      //--------------------------------------------------------------------
-      // pesquisaProfunda: Busca todos os vertices do grafo usando busca
-      // em profundidade
-      //--------------------------------------------------------------------
+      /**
+       * pesquisaProfundidade: Algoritmo de caminhamento em Grafo utilizando o metodo
+       * de Busca em Profundidade.
+       */
       void pesquisaProfundidade()
       {
-      		for (int i = 0; i < numVertice; ++i)
+          iniciaVisitados();
+          for (int i = 0; i < numVertice; ++i)
             {
-               if(visitados[i] == false)
+               if(visitados[i] == false && getGrauSaida(i) >= 1)
                {
                   componentes++;
+                  caminho++;
                   visite(i);
                }
             }
@@ -332,18 +334,18 @@ class Grafo
             visitados[v] = true;
             for( int i = 0; i < numVertice; i++)
             {
-               if(isAresta(i,v) && visitados[i] == false)
+               if(isAresta(v,i) && visitados[i] == false && getGrauEntrada(i)>=1 && getGrauSaida(i)>=1)
+               {
+                  caminho++;
                   visite(i);
+               }              
             }
       }//--------------------------------------------------------------------
 
-
-      
-      //--------------------------------------------------------------------
-      // pesquisaProfunda: Busca todos os vertices do grafo usando metodos
-      // da profundidade
-      //--------------------------------------------------------------------
-
+      /**
+       * pesquisaLargura: Algoritmo de caminhamento em Digrafo utilizando o metodo
+       * de Busca em Largura.
+       */
       void pesquisaLargura()
       {
 
@@ -389,41 +391,87 @@ class Grafo
       }//--------------------------------------------------------------------
 
 
-      //--------------------------------------------------------------------
-      // isConexo: Metodo que retorna true se houver pelo menos um caminho 
-      // entre todos os vertices do Grafo.
-      //--------------------------------------------------------------------
-
+      /**
+       * isConexo: Metodo que retorna verdadeiro se houver ao menos um caminho
+       * entre todos os vertices do grafo.
+       */
       bool isConexo()
       {
          bool resp = false;
          pesquisaProfundidade();
-         if(componentes <= 1)
+         if(componentes == 1)
          {
             resp = true;
          }
          return resp;
       }
 
+      /**
+       * isConexo: Metodo que retorna verdadeiro se houver ao menos um caminho
+       * entre todos os vertices do Digrafo.
+       */
+      bool isConexo(Grafo *g)
+      {
+         bool resp = false;
+         g->pesquisaProfundidade(g);
+         if(g->componentes == 1)
+         {
+            resp = true;
+         }
+         return resp;
+      }//--------------------------------------------------------------------
+
+      /**
+       * pesquisaProfundidade: Algoritmo de caminhamento em Digrafo utilizando o metodo
+       * de Busca em Profundidade.
+       */
+      void pesquisaProfundidade(Grafo *g)
+      {
+          g->iniciaVisitados();
+          for (int i = 0; i < numVertice; ++i)
+            {
+               if(g->visitados[i] == false)
+               {
+                  g->componentes++;
+                  g->visite(i,g);
+               }
+            }
+      }//--------------------------------------------------------------------
+
 
       //--------------------------------------------------------------------
-      //                            isEuleriano
+      // visite: Visita os vinhos de um vertice nao visitado na matriz
       //--------------------------------------------------------------------
+      void visite(Vertice v, Grafo *g)
+      {
+            g->visitados[v] = true;
+            for( int i = 0; i < numVertice; i++)
+            {
+
+               if(g->isAresta(v,i)  && g->visitados[i] == false)
+               {
+                  g->visite(i,g);
+               }
+            }
+      }//--------------------------------------------------------------------
+
+
+
       /**
        * isEuleriano: Método que verifica se um determinado Grafo é Euleriano
        * @return true caso seja Euleriano 
        * @param Grafo f
        */
- /*
+
       bool isEuleriano()
       {
          bool resp = false;
-         if(isConexo())
+         if(isConexo() && !isNulo())
          {
             resp = true;
             for (int i = 1; i < numVertice; ++i)
             {
-               if( grauVertice(i) % 2 != 0)
+               if( (getGrauEntrada(i)+ getGrauSaida(i)) % 2 != 0)
                {
                   resp = false;
                   i = numVertice;
@@ -433,10 +481,107 @@ class Grafo
          return resp;
       }
       //--------------------------------------------------------------------
-      * */
 
+         /**
+          * isNulo: Método que diz se um grafo possui apenas
+          * vertices isolados
+          * @return true se um grafo for NULO
+          */
 
-      
+          bool isNulo()
+          {
+            bool resp = true;
+            for (int i = 0; i < numVertice; ++i)
+            {  
+               for (int j = 0; j < numVertice; ++j)
+               {
+                  if(isAresta(i,j))
+                  {
+                     resp = false;
+                     j = numVertice;
+                     i = numVertice;
+                  }
+               }
+            }
+            return resp;
+         }//--------------------------------------------------------------------
+
+         /**
+          * isCompleto: Metodo que diz se todos os vertices sao adjacentes, ou seja,
+          * todos os vertices estao conectados ao menos por uma aresta
+          */
+         bool isCompleto()
+         {
+            bool resp = false;
+            if(isConexo())
+            {
+               resp = true;
+               for (int i = 0; i < numVertice; ++i)
+               {
+                  for (int j = i+1; j < numVertice; ++j)
+                  {
+                     if(!isAresta(i,j))
+                     {
+                        resp = false;
+                     }
+                  }
+               }
+            }
+            return resp;
+         }//--------------------------------------------------------------------
+         /**
+          * isRegular(): funcao que diz se um Digrafo é Regular
+          * @return true se um digrafo for regular
+          * 
+          */
+         bool isRegular()
+         {
+            bool resp = false;
+            if(isNulo() == false)
+            {               
+               int x = getGrauEntrada(0);
+               int y = getGrauSaida(0);
+               resp = true;
+               for (int i = 0; i < numVertice; ++i)
+               {
+                  for (int j = 1; j < numVertice; ++j)
+                  {
+                     if(x != getGrauEntrada(j) || y!= getGrauSaida(j))
+                     {
+                        resp = false;
+                        i = numVertice;
+                     }
+                  }
+               }
+            }
+            return resp;
+         }//--------------------------------------------------------------------
+         
+         /**
+          * isBalanceado: metodo que retorna true caso a soma do grau de entrada
+          * e saida do digrafo sejam iguais
+          * @return true digrafo balanceado
+          */
+        bool isBalanceado()
+        {
+          bool resp = false;
+          int x = 0, y = 0;
+          if(isNulo()== false)
+          {
+            resp = true;
+            for (int i = 0; i < numVertice; ++i)
+            {
+              if(getGrauEntrada(i)!= getGrauSaida(i))
+              {
+                resp = false;
+                i = numVertice;
+              }
+            }
+          }
+            //cout<<"x = "<< x << " y = "<< y << endl;
+            return resp;
+      }//--------------------------------------------------------------------
+
       /**
        * getGrauEntrada: Retorna o grau de entrada de um vertice
        * contido em um digrafo.
@@ -446,7 +591,7 @@ class Grafo
        
        int getGrauEntrada(Vertice v)
        {
-		 int grauVertice = 0;
+         int grauVertice = 0;
          for (int j = 0; j < numVertice; ++j)
          {
             if(isAresta(j,v))
@@ -454,11 +599,11 @@ class Grafo
                grauVertice++;
             }
          }
+         //cout<<"ENTADA->"<<grauVertice<<endl;
          return grauVertice;
        }//--------------------------------------------------------------------
-       
-       
-       /**
+
+      /**
        * getGrauSaida: Retorna o grau de saida de um vertice
        * contido em um digrafo.
        * @param Vertice v
@@ -475,10 +620,111 @@ class Grafo
                grauVertice++;
             }
          }
+         //cout<<"SAIDA->"<<grauVertice<<endl;
          return grauVertice;
        }//--------------------------------------------------------------------
 
 
+      /**
+       * getGrau: Retorna o grau de um vértice em um Grafo
+       * @param Vertice i
+       * @return int grauVertice
+       */
+
+       int grauVertice(Vertice v)
+       {
+         int grauVertice = 0;
+         for (int j = 0; j < numVertice; ++j)
+         {
+            if(isAresta(v,j))
+            {
+               grauVertice++;
+            }
+         }
+         return grauVertice;
+       }//--------------------------------------------------------------------
+       
+          
+      /**
+       * isFortementeConexo: metodo que retorna um valor true se existe um caminho
+       * seguindo a direcao das arestas (dirigido) entre todos os pares de vertice
+       * @return true
+       */ 
+      bool isFortementeConexo()
+      {
+        bool resp = true;
+        for (int i = 0; i < numVertice; ++i)
+        {
+            if(getGrauSaida(i) < 1 || getGrauEntrada(i) < 1)
+            {
+              resp = false;
+            }
+        }
+        return resp;
+      }//--------------------------------------------------------------------
+       
+       /**
+        * isFracamenteConexo: metodo que retorna true se um digrafo nao for fortemente
+        * conexo mas seu grafoCorrespondente é conexo
+        * @return true se um digrafo for fortemente conexo
+        */ 
+        bool isFracamenteConexo()
+        {
+          bool resp = false;
+          if(!isFortementeConexo())
+          {
+              Grafo *g = getGrafoCorrespondente();
+              if(g->isConexo(g))
+              {
+                resp = true;
+              }
+          }
+          return resp;
+      }//--------------------------------------------------------------------      
+      
+      /**
+       * getGrafoCor: metodo que recebe um digrafo como para parametro
+       * e retorna um grafo correspondente a esse digrafo, ou seja
+       * sem a orientacao das arestas.
+       * @param  Digrafo d
+       * @return Grago g
+       */
+       Grafo* getGrafoCorrespondente()
+       {
+         int x = getNumVertice();
+         int y[MAX_VERTICE][MAX_VERTICE];
+         for (int i = 0; i < numVertice; ++i)
+           {
+             y[i][i] = NULO;
+             for (int j = 0; j < numVertice; ++j)
+             {
+               if(isAresta(i,j))
+               {
+                  y[i][j] = getAresta(i,j);
+                  y[j][i] = getAresta(i,j);
+               }
+               else
+               {
+                y[i][j] = -1;                
+               }
+             }
+           }
+
+          Grafo *g = new Grafo;
+          g->excluirTodasArestas();
+          g->setNumVertice(numVertice);
+          for (int i = 0; i < numVertice; ++i)
+           {
+               g->inserirAresta(i,i,NULO);
+               for (int j = 0; j < numVertice; ++j)
+               {
+                  g->inserirAresta(i,j,y[i][j]);
+               }
+           }
+         return g;
+       }//--------------------------------------------------------------------
+
+    
        /**
         * isSimples: 
         * @param Grafo f
@@ -503,177 +749,11 @@ class Grafo
             }
             return resp;
         }//--------------------------------------------------------------------
-
-
-
-      
-         /**
-          * isNulo: Método que diz se um grafo possui apenas
-          * vertices isolados
-          * @return true se um grafo for NULO
-          */
-
-          bool isNulo()
-          {
-            bool resp = true;
-            for (int i = 0; i < numVertice; ++i)
-            {  
-               for (int j = i+1; j < numVertice; ++j)
-               {
-                  if(isAresta(i,j))
-                  {
-                     resp = false;
-                     j = numVertice;
-                     i = numVertice;
-                  }
-               }
-            }
-            return resp;
-         }//--------------------------------------------------------------------
-
-
-         /**
-          * isRegular(): funcao que diz se um Digrafo é Regular
-          * @return true se um digrafo for regular
-          * 
-          */
-         bool isRegular()
-         {
-            bool resp = true;
-            if(isNulo() == false)
-            {               
-               int x = getGrauEntrada(0);
-               int y = getGrauSaida(0);
-               for (int i = 0; i < numVertice; ++i)
-               {
-                  for (int j = 0; j < numVertice; ++j)
-                  {
-                     if(x != getGrauEntrada(j) || y!= getGrauSaida(j))
-                     {
-                        resp = false;
-                        i = numVertice;
-                     }
-                  }
-               }
-            }
-            return resp;
-         }//--------------------------------------------------------------------
          
+    
          /**
-          * isBalanceado: metodo que retorna true caso a soma do grau de entrada
-          * e saida do digrafo sejam iguais
-          * @return true digrafo balanceado
+          * Simulacoes e testes
           */
-          bool isBalanceado()
-          {
-			  bool resp = false;
-			  int x = 0, y = 0;
-			  
-			  for (int i = 0; i < numVertice; ++i)
-               {
-                  for (int j = 0; j < numVertice; ++j)
-                  {
-                     x += getGrauEntrada(j);
-                     y += getGrauSaida(j);
-                  }
-               }
-               return resp = (x == y) ? true: false;
-		  }//--------------------------------------------------------------------
-		  
-		  /**
-		   * isFortementeConexo: metodo que retorna um valor true se existe um caminho
-		   * seguindo da direcao das arestas (dirigido) entre todos os pares de vertice
-		   * @return true
-		   */ 
-		   bool isFortementeConexo()
-		   {
-			   bool resp = false;			   
-			   for(int i =0; i<numVertice; ++i)
-			   {
-				   if(getGrauEntrada(i) < 1)
-				   {
-					   resp = false;
-					   i = numVertice;
-				   }
-			   }
-			   return resp;			   			
-		   }//--------------------------------------------------------------------
-		   
-		   /**
-		    * isFracamenteConexo: metodo que retorna true se um digrafo nao for fortemente
-		    * conexo mas seu grafoCorrespondente é conexo
-		    * @return true se um digrafo for fortemente conexo
-		    */ 
-		    bool isFracamenteConexo()
-		    {
-				bool resp = false;
-				if(!isFortementeConexo())
-				{
-					Grafo g  = getGrafoCorp();
-					if(g.isFortementeConexo)
-					{
-						resp = true;
-					}					
-				}
-				return resp;
-				
-			}//--------------------------------------------------------------------
-			
-			/**
-			 * getGrafoCor: metodo que recebe um digrafo como para parametro
-			 * e retorna um grafo correspondente a esse digrafo, ou seja
-			 * sem a orientacao das arestas.
-			 * @param  Digrafo d
-			 * @return Grago g
-			 */
-			 Grafo getGrafoCorp()
-			 {
-				 Grafo g;
-				 int temp = 0;
-				 for(int i = 0; i < numVertice; i++)
-				 {
-					g.inserirAresta(i, i, NULO);
-					for(int j = i+1; j < numVertice; j++)
-					{	
-						temp = getAresta(i,j);
-						//cout << "Peso inserido " << temp << "\n";
-						//cout << "Numero aresta "<< " " << numAresta << "\n";
-						g.inserirAresta(i, j, temp);
-						g.inserirAresta(j, i, temp);
-					}
-				}		 
-				 return g;
-			 }
-				
-		   
-		  
-
-
-         //--------------------------------------------------------------------
-         // isCompleto: Metodo que diz se todos os vertices sao adjacentes
-         //--------------------------------------------------------------------
-
-         bool isCompleto()
-         {
-            bool resp = false;
-            if(isConexo())
-            {
-               resp = true;
-               for (int i = 0; i < numVertice; ++i)
-               {
-                  for (int j = i+1; j < numVertice; ++j)
-                  {
-                     if(!isAresta(i,j))
-                     {
-                        resp = false;
-                     }
-                  }
-               }
-            }
-            return resp;
-         }//-------------------  -------------------------------------------------
-
-         //--------------------------------------------------------------------
          void test(bool a)
          {
             if(a)
@@ -690,14 +770,14 @@ class Grafo
 //--------------------------------------------------------------------
 void testes(Grafo* g)
 {
-      g->imprimirVerticeAresta();
-      cout <<"S   R   N   C   E   U" << endl;
-      g->test(g->isSimples());  
-      g->test(g->isRegular());  
-      g->test(g->isNulo());     
-      g->test(g->isCompleto()); 
-     // g->test(g->isEuleriano());
-     // g->test(g->isUnicursal());
+      //g->imprimirVerticeAresta();
+      //g->imprimir();
+      //cout <<"R   B   FO   FA   E" << endl;
+      g->test(g->isRegular());
+      g->test(g->isBalanceado());
+      g->test(g->isFortementeConexo());
+      g->test(g->isFracamenteConexo());
+      g->test(g->isEuleriano());
       cout << "\n";
 }
 
@@ -711,7 +791,6 @@ int main(int argc, char **argv)
 
    while (g->lerGrafo() == true)
    {
-	   //g->imprimir();
       //g->imprimirVerticeAresta();
       //g->imprimirPendenteAndIsolado();
       testes(g);
