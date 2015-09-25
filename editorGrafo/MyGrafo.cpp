@@ -21,11 +21,11 @@ using namespace std;
 // DEFINICAO DE CONSTANTES
 //=====================================================================
 #define MAX_VERTICE		 		500
-#define MAX_INT         		0x7FFFFFFF
-#define NULO						-1
+#define MAX_INT         	0x7FFFFFFF
+#define NULO						  -1
 #define BRANCO						0
-#define PRETO						1
-
+#define PRETO						  1
+#define INIFITY           0x7FFFFFFF 
 //=====================================================================
 // DEFINICAO DE TIPOS
 //=====================================================================
@@ -604,9 +604,9 @@ class Grafo
                }
             }
             return resp;
-         }//-------------------  -------------------------------------------------
+         }//--------------------------------------------------------------------
 
-         void inicializacoes(Vertice v, int* [][] caminhos, int* distancia[])
+         void inicializacoes(Vertice v, int** caminhos, int* distancia)
          {
 
           iniciaVisitados();         
@@ -619,31 +619,51 @@ class Grafo
               }
               if(isAresta(v,i))
               {
-                 distancia[i] = getPeso(v,i);
+                 distancia[i] = getAresta(v,i);
                  caminhos[v][i]  = 1;
               }
               else if(!isAresta(v,i))
               {
-                 distancia[i] = INT_MAX;                
+                 distancia[i] = INIFITY;                
               }
            }
-            
-            
-       }
+         }
          
          /**
-          * Dijkstra
+          * Algoritmo de Dijkstra
           */ 
           
-          void dijkStra(Vertice v)
+          void dijkstra(Vertice v)
           {
-          int* distancia = new int[MAX_VERTICE];
-          int* caminhos  = new int[MAX_VERTICE][MAX_VERTICE];
-          inicializacoes(v, &caminhos, &distancia);
+            // Vetor de distancias
+            int*  distancia = new int[MAX_VERTICE];
+            // Matriz de Caminhos
+            int** caminhos  = new int*[MAX_VERTICE];
+            for (int i = 0; i < numVertice; ++i)
+              caminhos[i] = new int[MAX_VERTICE];
+            // Inicializacoes necessarias  
+            inicializacoes(v, caminhos, distancia);
+
+            for (int i = 0; i < numVertice; ++i)
+            {
+              if(visitados[i] == false && isAresta(v,i) && getAresta(v,i) < distancia[i])
+              {
+                  visitados[i] = true;
+                  for (int j = 0; j < numVertice; ++j)
+                  {
+                      if(isAresta(i,j) && visitados[j] == false && (distancia[j] + getAresta(i,j) < distancia[i]))
+                      {
+                        distancia[j] = distancia[i] + getAresta(i,j);
+                      }
+                  }
+              }
+            }
           
         }
 
-         //--------------------------------------------------------------------
+         /**
+          * Simulacoes de testes
+          */
          void test(bool a)
          {
             if(a)
