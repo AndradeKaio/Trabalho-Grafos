@@ -71,15 +71,7 @@ class Lista
 
    public:
 
-      Lista()
-      {
-         numElementos = 0;
-         start();
-      }
-      ~Lista()
-      {
 
-      }
 
  
    //TIPO CELULA ===================================================================
@@ -109,6 +101,7 @@ class Lista
 
    void start () 
    {
+      numElementos = 0;
       primeiro = novaCelula(-999,-999);
       ultimo = primeiro;
    }
@@ -120,6 +113,8 @@ class Lista
     */
    void inserirInicio(Vertice v2, Peso p) 
    {
+      int tam = numElementos;
+      //cout<< "InserirInicio tam = "<<tam << " v2 = "<< v2 << "peso = "<<p<<endl;
       Celula *tmp = novaCelula(v2, p);
       tmp->prox = primeiro->prox;
       primeiro->prox = tmp;
@@ -137,6 +132,8 @@ class Lista
     */
    void inserirFim(Vertice v2, Peso p) 
    {
+      int tam = numElementos;
+      //cout<< "InserirFim tam = "<<tam << " v2 = "<< v2 << "peso = "<<p<<endl;
       ultimo->prox = novaCelula(v2, p);
       ultimo = ultimo->prox;
       numElementos++;
@@ -151,13 +148,14 @@ class Lista
    void inserirMeio(Vertice v2, Peso peso) 
    {
     
-      int tam = tamanho();
+      int tam = numElementos;
+      //cout<< "InserirMeio  tam = "<<tam << " v2 = "<< v2 << "peso = "<<peso<<endl;
     
       if(v2 < 0 || v2 > tam)
       {
          errx(1, "Erro ao inserir posicao (%d/ tamanho = %d) invalida!", v2, tam);
       } 
-      else if (v2 == 0)
+      else if (tam == 0)
       {
          inserirInicio(v2,peso);
       } 
@@ -168,6 +166,7 @@ class Lista
       else 
       {
          // Caminhar ate a posicao anterior a insercao
+        cout<<"HI";
          int j;
          Celula *i = primeiro;
          for(j = 0; j < v2; j++, i = i->prox);
@@ -191,7 +190,7 @@ class Lista
     Peso getVerticePeso(Vertice v2)
     {
       Peso resp;
-      int tam = tamanho();
+      int tam = numElementos;
     
       if (primeiro == ultimo)
       {
@@ -346,14 +345,14 @@ class Lista
    {
       bool retorno = false;
       Celula *i;
-    
+      int y = 0;
       for (i = primeiro->prox; i != NULL; i = i->prox) 
       {
-         if(i->elemento == x)
+         if(i->elemento == x && i->elemento != NULO)
          {
             retorno = true;
 
-            //i = ultimo;
+            i = ultimo;
          }
       }
       return retorno;
@@ -391,7 +390,7 @@ class Grafo
       Grafo()
       {
          numVertice = 0;
-
+         componentes = 0;
          excluirTodasArestas();
       }//-------------------------------------------------------------------
 
@@ -401,7 +400,7 @@ class Grafo
       //--------------------------------------------------------------------
       ~Grafo()
       {
-         
+          
       }//-------------------------------------------------------------------
 
 
@@ -437,14 +436,15 @@ class Grafo
 
          for(int i = 0; i < numVertice; i++)
          {
-            inserirAresta(i, i, NULO);
+            //inserirAresta(i, i, NULO);
             for(int j = i+1; j < numVertice; j++)
             {	
                cin >> temp;
                //cout << "Aresta lida = " << temp << "\n";
                //cout << " "<< " " << numAresta << "\n";
-               inserirAresta(i, j, temp);
-               inserirAresta(j, i, temp);
+               if(i != j )
+                 inserirAresta(i, j, temp);
+                 inserirAresta(j, i, temp);
             }
          }
          return resp;
@@ -471,15 +471,12 @@ class Grafo
             printf("ERRO! Vertice %i nao existe no grafo", v2);
             return;
          }
-         if(tabela[v1].primeiro == tabela[v1].ultimo)
+
+         else if(peso != NULO)
          {
-            tabela[v1].inserirInicio(v2,peso);
-            numAresta++;
-         }
-         else
-         {
-            tabela[v1].inserirMeio(v2, peso);
-            numAresta++;
+            tabela[v1].inserirFim(v2, peso);
+            if(peso != NULO && !tabela[v2].pesquisar(v1))
+              numAresta++;            
          }      
       }//-------------------------------------------------------------------
 
@@ -594,6 +591,7 @@ class Grafo
       //--------------------------------------------------------------------
       void iniciaVisitados()
       {
+          iniciaVisitados();
          for (int i = 0; i < numVertice; ++i)
          {
             visitados[i] = false;
@@ -601,10 +599,10 @@ class Grafo
       }//--------------------------------------------------------------------
 
 
-      //--------------------------------------------------------------------
-      // pesquisaProfunda: Busca todos os vertices do grafo usando busca
-      // em profundidade
-      //--------------------------------------------------------------------
+      /**
+       * pesquisaProfundidade: Algoritmo de caminhamento em Grafo utilizando o metodo
+       * de Busca em Profundidade.
+       */
       void pesquisaProfundidade()
       {
       	for (int i = 0; i < numVertice; ++i)
@@ -690,7 +688,7 @@ class Grafo
       {
          bool resp = false;
          pesquisaProfundidade();
-         if(componentes == 1)
+         if(componentes <= 1)
          {
             resp = true;
          }
@@ -710,10 +708,10 @@ class Grafo
       bool isEuleriano()
       {
          bool resp = false;
-         if(isConexo())
+         if(isConexo() && !isNulo())
          {
             resp = true;
-            for (int i = 0; i < numVertice; ++i)
+            for (int i = 1; i < numVertice; ++i)
             {
                if( grauVertice(i) % 2 != 0)
                {
@@ -726,25 +724,24 @@ class Grafo
       }
       //--------------------------------------------------------------------
 
-
-      //--------------------------------------------------------------------
-      // isUnicursal: Metodo que verifica se um grafo e Unicursal. Ou seja,
-      // se existe ao menos 2 vertices com grau impar.
-      //--------------------------------------------------------------------
+      /**
+       * isUnicursal: Metodo que verifica se existe ao menos 2 vertices com grau
+       * impar em um grafo conexo.
+       */
       bool isUnicursal()
       {
          bool resp = false;
          int  x = 1;
          if(isConexo())
          {
-            for (int i = 0; i < numVertice; ++i)
+            for (int i = 1; i < numVertice; ++i)
             {
                if( grauVertice(i) % 2 != 0)
                {
                   x++;
                }
             }
-            if( x % 2 == 0)
+            if( x % 2 == 0 )
             {
                resp = true;
             }
@@ -763,17 +760,15 @@ class Grafo
        int grauVertice(Vertice v)
        {
          int grauVertice = 0;
-         for (int i = v; i < numVertice; ++i)
+         for (int j = 0; j < numVertice; ++j)
          {
-            for (int j = 0; j < numVertice; ++j)
+            if(isAresta(v,j))
             {
-               if(isAresta(i,j))
-               {
-                  grauVertice++;
-               }
+               grauVertice++;
             }
+         }   
+            //cout<<grauVertice<<endl;        
             return grauVertice;
-         }
        }//--------------------------------------------------------------------
 
 
@@ -830,10 +825,10 @@ class Grafo
          }//--------------------------------------------------------------------
 
 
-         //--------------------------------------------------------------------
-         // isRegular: Metodo que diz se todos os vertices de um grafo possuem
-         // os mesmo grau.
-         //--------------------------------------------------------------------
+         /**
+          * isRegular: Metodo que diz se todos os vertices de um grafo possuem
+          * os mesmo grau.
+          */
 
          bool isRegular()
          {
@@ -857,20 +852,21 @@ class Grafo
          }//--------------------------------------------------------------------
 
 
-         //--------------------------------------------------------------------
-         // isCompleto: Metodo que diz se todos os vertices sao adjacentes
-         //--------------------------------------------------------------------
-
+         /**
+          * isCompleto: Metodo que diz se todos os vertices sao adjacentes, ou seja,
+          * todos os vertices estao conectados ao menos por uma aresta
+          */
          bool isCompleto()
          {
-            bool resp = true;
-            if(isConexo())
+            bool resp = false;
+            if(isConexo() && isNulo() == false)
             {
+               resp = true;
                for (int i = 0; i < numVertice; ++i)
                {
                   for (int j = i+1; j < numVertice; ++j)
                   {
-                     if(!isAresta(i,j))
+                     if(isAresta(i,j) == false || isAresta(j,i) == false )
                      {
                         resp = false;
                      }
@@ -888,8 +884,6 @@ class Grafo
             else
                cout << "NAO ";
          }
-
-
 };
 
 //--------------------------------------------------------------------
@@ -898,7 +892,7 @@ class Grafo
 void testes(Grafo* g)
 {
       g->imprimirVerticeAresta();
-      cout <<"S   R   N   C   E   U" << endl;
+      //cout <<"S   R   N   C   E   U" << endl;
       g->test(g->isSimples());  
       g->test(g->isRegular());  
       g->test(g->isNulo());     
