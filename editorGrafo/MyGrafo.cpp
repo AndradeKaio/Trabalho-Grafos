@@ -605,65 +605,8 @@ class Grafo
             }
             return resp;
          }//--------------------------------------------------------------------
-
-         void inicializacoes(Vertice v, int** caminhos, int* distancia)
-         {
-
-          iniciaVisitados();         
-          
-           for(int i = 0; i<numVertice; ++i)
-           {
-              if(v == i)
-              {
-                 distancia[i] = 0;
-              }
-              if(isAresta(v,i))
-              {
-                 distancia[i] = getAresta(v,i);
-                 caminhos[v][i]  = 1;
-              }
-              else if(!isAresta(v,i))
-              {
-                 distancia[i] = INIFITY;                
-              }
-           }
-         }
-         
          /**
-          * Algoritmo de Dijkstra
-          
-          
-          void dijkstra(Vertice v)
-          {
-            // Vetor de distancias
-            int*  distancia = new int[MAX_VERTICE];
-            // Matriz de Caminhos
-            int** caminhos  = new int*[MAX_VERTICE];
-            for (int i = 0; i < numVertice; ++i)
-              caminhos[i] = new int[MAX_VERTICE];
-            // Inicializacoes necessarias  
-            inicializacoes(v, caminhos, distancia);
-
-            for (int i = 0; i < numVertice; ++i)
-            {
-              if(visitados[i] == false && isAresta(v,i) && getAresta(v,i) < distancia[i])
-              {
-                  visitados[i] = true;
-                  for (int j = 0; j < numVertice; ++j)
-                  {
-                      if(isAresta(i,j) && visitados[j] == false && (distancia[j] + getAresta(i,j) < distancia[i]))
-                      {
-                        distancia[j] = distancia[i] + getAresta(i,j);
-                        caminho[i][j] =
-                      }
-                  }
-              }
-            }
-          
-        }*/
-
-         /**
-          * Simulacoes de testes
+          * Simulacoes e testes
           */
          void test(bool a)
          {

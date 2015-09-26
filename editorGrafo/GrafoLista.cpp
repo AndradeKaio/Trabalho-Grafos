@@ -48,8 +48,6 @@ struct Aresta
 
 
 
-
-
 /**
  * Lista dinamica
  * @author Max do Val Machado
@@ -104,28 +102,7 @@ class Lista
       numElementos = 0;
       primeiro = novaCelula(-999,-999);
       ultimo = primeiro;
-   }
-    
-    
-   /**
-    * Insere um elemento na primeira posicao da lista.
-    * @param x int elemento a ser inserido.
-    */
-   void inserirInicio(Vertice v2, Peso p) 
-   {
-      int tam = numElementos;
-      //cout<< "InserirInicio tam = "<<tam << " v2 = "<< v2 << "peso = "<<p<<endl;
-      Celula *tmp = novaCelula(v2, p);
-      tmp->prox = primeiro->prox;
-      primeiro->prox = tmp;
-      if (primeiro == ultimo) 
-      {                    
-         ultimo = tmp;
-      }
-      numElementos++;
-      tmp = NULL;
-   }
-    
+   }    
    /**
     * Insere um elemento na ultima posicao da lista.
     * @param x int elemento a ser inserido.
@@ -138,50 +115,8 @@ class Lista
       ultimo = ultimo->prox;
       numElementos++;
    }
-   /**
-    * Insere um elemento em uma posicao especifica considerando que o 
-    * primeiro elemento valido esta na posicao 0.
-    * @param x int elemento a ser inserido.
-    * @param pos int posicao da insercao.
-    * @throws Exception Se <code>posicao</code> invalida.
-    */
-   void inserirMeio(Vertice v2, Peso peso) 
-   {
-    
-      int tam = numElementos;
-      //cout<< "InserirMeio  tam = "<<tam << " v2 = "<< v2 << "peso = "<<peso<<endl;
-    
-      if(v2 < 0 || v2 > tam)
-      {
-         errx(1, "Erro ao inserir posicao (%d/ tamanho = %d) invalida!", v2, tam);
-      } 
-      else if (tam == 0)
-      {
-         inserirInicio(v2,peso);
-      } 
-      else if (v2 == tam)
-      {
-         inserirFim(v2,peso);
-      } 
-      else 
-      {
-         // Caminhar ate a posicao anterior a insercao
-        cout<<"HI";
-         int j;
-         Celula *i = primeiro;
-         for(j = 0; j < v2; j++, i = i->prox);
-    
-         Celula *tmp = novaCelula(v2,peso);
-         tmp->prox = i->prox;
-         i->prox = tmp;
-         tmp = i = NULL;
-         numElementos++;
-      }
-   }
-    
-    
 
-
+    
    /**
     * Busca na lista o Peso de um determinado vertice
     * retorna o mesmo se for diferente de NULO 
@@ -215,55 +150,6 @@ class Lista
       }
       return resp;
     }
-    
-    
-   /**
-    * Remove um elemento da primeira posicao da lista.
-    * @return resp int elemento a ser removido.
-    * @throws Exception Se a lista nao contiver elementos.
-    */
-   int removerInicio() 
-   {
-      if (primeiro == ultimo) 
-      {
-         errx(1, "Erro ao remover!");
-      }
-    
-      Celula *tmp = primeiro;
-      primeiro = primeiro->prox;
-      int resp = primeiro->elemento;
-      tmp->prox = NULL;
-      free(tmp);
-      tmp = NULL;
-      numElementos--;
-      return resp;
-   }
-    
-    
-   /**
-    * Remove um elemento da ultima posicao da lista.
-    * @return resp int elemento a ser removido.
-    */
-   int removerFim() 
-   {
-      if (primeiro == ultimo) {
-         errx(1, "Erro ao remover!");
-      } 
-    
-      // Caminhar ate a penultima celula:
-      Celula *i;
-      for(i = primeiro; i->prox != ultimo; i = i->prox);
-    
-      int resp = ultimo->elemento;
-      ultimo = i;
-      free(ultimo->prox);
-      i = ultimo->prox = NULL;
-      numElementos--;
-    
-      return resp;
-   }
-    
-    
    /**
     * Calcula e retorna o tamanho, em numero de elementos, da lista.
     * @return resp int tamanho
@@ -272,55 +158,8 @@ class Lista
    {
       return numElementos;
    }
-    
-    
-   /**
-    * Remove um elemento de uma posicao especifica da lista
-    * considerando que o primeiro elemento valido esta na posicao 0.
-    * @param posicao Meio da remocao.
-    * @return resp int elemento a ser removido.
-    * @throws Exception Se <code>posicao</code> invalida.
-    */
-   int removerMeio(Vertice pos) 
-   {
-      int resp;
-      int tam = tamanho();
-    
-      if (primeiro == ultimo)
-      {
-         errx(1, "Erro ao remover (vazia)!");
-      } 
-      else if(pos < 0 || pos >= tam)
-      {
-         errx(1, "Erro ao remover posicao (%d/ tamanho = %d) invalida!", pos, tam);
-      } 
-      else if (pos == 0)
-      {
-         resp = removerInicio();
-      } 
-      else if (pos == tam - 1)
-      {
-         resp = removerFim();
-      } 
-      else 
-      {
-         // Caminhar ate a posicao anterior a insercao
-         Celula *i = primeiro;
-         int j;
-         for(j = 0; j < pos; j++, i = i->prox);
-    
-         Celula *tmp = i->prox;
-         resp = tmp->elemento;
-         i->prox = tmp->prox;
-         tmp->prox = NULL;
-         free(tmp);
-         i = tmp = NULL;
-         numElementos--;
-      }
-      return resp;
-   }
-    
-    
+ 
+
    /**
     * Mostra os elementos da lista separados por espacos.
     */
@@ -502,37 +341,7 @@ class Grafo
 
 
 
-      //--------------------------------------------------------------------
-      // excluirAresta: Exclui uma aresta.
-      //--------------------------------------------------------------------
-      void excluirAresta(Vertice v1, Vertice v2)
-      {
 
-         if(v1 > numVertice)
-         {
-            printf("ERRO! Vertice %i nao existe no grafico",v1);
-            return;
-         }
-
-         if(v2 > numVertice)
-         {
-            printf("ERRO! Vertice %i nao existe no grafico",v2);
-            return;
-         }
-
-         if(tabela[v1].primeiro == tabela[v2].ultimo)
-         {
-            if(tabela[v1].pesquisar(v2))
-            {
-               int x = tabela[v1].removerMeio(v2);
-               numAresta--;
-            }
-            else
-            {
-               cout << "FILA VAZIA" << endl;
-            }
-         }      
-      }//-------------------------------------------------------------------
 
 
 
