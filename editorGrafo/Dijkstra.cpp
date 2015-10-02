@@ -154,6 +154,21 @@ class Lista
       printf(" ]");
       //printf("\n");
    }
+   /**
+    * copy: Metodo auxiliar que recebe uma fila e a copia 
+    * para fila corrente
+    */
+    void copy(Lista f)
+    {
+      if(f.primeiro != f.ultimo)
+      {
+        Celula *i;
+        for (i = f.primeiro->prox; i != NULL; i = i->prox) 
+        {
+           inserirFim(i->elemento);
+        }
+      }
+    }
     
     /**
      * Percorre a lista contando a quantidade de nodos contidos nela
@@ -717,11 +732,12 @@ class Grafo
        }//--------------------------------------------------------------------
 
 
+        /**
+         * Inicializacoes necessarias do Algoritmo de Dijkstra
+         */
         void inicializacoes(Vertice v, int* distancia)
          {
-
           iniciaVisitados();     
-          
            for(int i = 0; i<numVertice; ++i)
            {
               if(v == i)
@@ -731,7 +747,6 @@ class Grafo
               }              
               else if(isAresta(v,i) && i!=v)
               {
-                cout << i;
                 distancia[i] = getAresta(v,i);
                 for (int x = 0; x <= i; ++x)
                 {
@@ -744,7 +759,7 @@ class Grafo
               }
            }
          }
-         
+
          /**
           * Algoritmo de Dijkstra
           */
@@ -752,7 +767,6 @@ class Grafo
           {
             // Vetor de distancias
             int*  distancia = new int[numVertice];
-
             // Inicializacoes necessarias  
             inicializacoes(v,distancia);
             visitados[v] = true;
@@ -760,20 +774,19 @@ class Grafo
             {
               for (int i = 0; i < numVertice; ++i)
               {
-                if(visitados[i] == false && isAresta(v,i) && getAresta(v,i) <= distancia[i])
-                {
-
+                if(isAresta(v,i) && visitados[i] == false && getAresta(v,i) <= distancia[i])
+                {                  
                   visitados[i] = true;
                   for (int j = 0; j < numVertice; ++j)
                   {
                     if(isAresta(i,j) && visitados[j] == false && (distancia[i] + getAresta(i,j) < distancia[j]))
                     { 
-                      //cout << i<< j<<endl;         
-                      //distancia[j] = distancia[i] + getAresta(i,j); 
-                      //caminhos[j]  = caminhos[i];
-                      //caminhos[j].inserirFim(j,getAresta(i,j));
+                      distancia[j] = distancia[i] + getAresta(i,j);
+                      caminhos[j].copy(caminhos[i]);
+                      caminhos[j].inserirFim(j);
+                      v = i;
                     }
-                  }
+                  }                  
                 }
               }
             }
@@ -798,7 +811,10 @@ class Grafo
             {
               cout << "Distancia do vertice inicial para o vertice ("<<i;
               cout << ") = "; caminhos[i].mostrar();
-              cout << distancia[i];
+              if(distancia[i] > 999)
+                cout << -1;
+              else
+                cout << distancia[i];
               cout << endl; 
             }
           }
@@ -824,7 +840,7 @@ class Grafo
 void testes(Grafo* g)
 {
       //g->imprimirVerticeAresta();
-      //g->imprimir();
+      g->imprimir();
       //cout <<"R   B   FO   FA   E" << endl;
         g->dijkstra(0);
       cout << "\n";
